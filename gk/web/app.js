@@ -28,19 +28,24 @@ let pendingPromotionMove = null; // Chờ chọn phong cấp
 
 function connectWebSocket(isReconnect = false) {
     if (socket && socket.readyState === WebSocket.OPEN) {
-        // Nếu đang kết nối lại và socket vẫn mở, gửi luôn
         if (isReconnect) {
             sendReconnectMessage();
         }
         return;
     }
     
-    const serverIp = window.location.hostname; 
-    socket = new WebSocket(`ws://${serverIp}:8765`);
+    // Lấy URL từ biến global, nếu không có thì dùng localhost
+    let wsUrl = window.WS_BACKEND_URL || 'ws://localhost:8765';
+    
+    // SỬA LỖI WSS: Nếu Frontend chạy trên HTTPS (Vercel), sử dụng WSS
+    if (window.location.protocol === 'https:' && wsUrl.startsWith('ws:')) {
+        wsUrl = wsUrl.replace('ws:', 'wss:');
+    }
+
+    socket = new WebSocket(wsUrl); 
 
     socket.onopen = () => {
-        console.log("Connected to server");
-        // Nếu đây là kết nối lại, gửi tin nhắn
+        console.log("Connected to server:", wsUrl); 
         if (isReconnect) {
             sendReconnectMessage();
         }
