@@ -334,9 +334,14 @@ async def handler(ws):
                     if room_id in games:
                         del games[room_id]
 async def main():
-    async with websockets.serve(handler, "0.0.0.0", 8765):
-        print("Server running on ws://localhost:8765")
+    import os
+    # Lấy cổng từ biến môi trường PORT (do Render cung cấp)
+    port = int(os.environ.get("PORT", 8765))
+
+    async with websockets.serve(handler, "0.0.0.0", port):
+        print(f"Server running on ws://0.0.0.0:{port}")
         await asyncio.Future()
 
 if __name__ == "__main__":
+    import asyncio
     asyncio.run(main())
